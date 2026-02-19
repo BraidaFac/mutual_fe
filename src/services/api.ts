@@ -20,7 +20,12 @@ export const setAccessToken = (token: string | null) => {
 export const getAccessToken = () => accessToken;
 
 export class ApiError extends Error {
-  constructor(public status: number, message: string, public data?: any) {
+  constructor(
+    public status: number,
+    message: string,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    public data?: any,
+  ) {
     super(message);
     this.name = "ApiError";
   }
@@ -60,7 +65,7 @@ async function refreshAccessToken(): Promise<string | null> {
             "Content-Type": "application/json",
           },
           credentials: "include", // Envía las cookies httpOnly
-        }
+        },
       );
 
       if (!response.ok) {
@@ -108,7 +113,7 @@ async function refreshAccessToken(): Promise<string | null> {
  */
 export async function apiRequest<T>(
   endpoint: string,
-  options: RequestInit = {}
+  options: RequestInit = {},
 ): Promise<T> {
   const url = `${API_BASE_URL}${endpoint}`;
 
@@ -119,9 +124,8 @@ export async function apiRequest<T>(
 
   // Agregar token de autorización si existe
   if (accessToken) {
-    (headers as Record<string, string>)[
-      "Authorization"
-    ] = `Bearer ${accessToken}`;
+    (headers as Record<string, string>)["Authorization"] =
+      `Bearer ${accessToken}`;
   }
 
   // Agregar Content-Type solo si no es FormData
@@ -148,7 +152,7 @@ export async function apiRequest<T>(
       if (!newToken) {
         throw new ApiError(
           401,
-          "Sesión expirada. Por favor, inicia sesión nuevamente."
+          "Sesión expirada. Por favor, inicia sesión nuevamente.",
         );
       }
 
@@ -185,7 +189,7 @@ export async function apiRequest<T>(
         throw new ApiError(
           response.status,
           result.message || "Error en la respuesta de la API",
-          result.data
+          result.data,
         );
       }
 
@@ -210,7 +214,7 @@ export async function apiRequest<T>(
     // Error de red o conexión
     throw new ApiError(
       500,
-      error instanceof Error ? error.message : "Error de conexión"
+      error instanceof Error ? error.message : "Error de conexión",
     );
   }
 }
@@ -220,7 +224,7 @@ export async function apiRequest<T>(
  */
 export async function apiRequestBlob(
   endpoint: string,
-  options: RequestInit = {}
+  options: RequestInit = {},
 ): Promise<Blob> {
   const url = `${API_BASE_URL}${endpoint}`;
 
@@ -229,9 +233,8 @@ export async function apiRequestBlob(
   };
 
   if (accessToken) {
-    (headers as Record<string, string>)[
-      "Authorization"
-    ] = `Bearer ${accessToken}`;
+    (headers as Record<string, string>)["Authorization"] =
+      `Bearer ${accessToken}`;
   }
 
   const config: RequestInit = {
@@ -268,7 +271,7 @@ export async function apiRequestBlob(
 
     throw new ApiError(
       response.status,
-      response.statusText || "Error al descargar el archivo"
+      response.statusText || "Error al descargar el archivo",
     );
   } catch (error) {
     if (error instanceof ApiError) {
@@ -277,7 +280,7 @@ export async function apiRequestBlob(
 
     throw new ApiError(
       500,
-      error instanceof Error ? error.message : "Error de conexión"
+      error instanceof Error ? error.message : "Error de conexión",
     );
   }
 }
@@ -285,6 +288,7 @@ export async function apiRequestBlob(
 /**
  * Helper para construir query strings
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function buildQueryString(params: Record<string, any>): string {
   const searchParams = new URLSearchParams();
 
