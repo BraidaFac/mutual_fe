@@ -19,7 +19,7 @@ import {
 } from "@mui/material";
 import NextLink from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Suspense, useEffect, useState } from "react"; // 1. Importar Suspense
+import { Suspense, useState } from "react"; // 1. Importar Suspense
 
 // 2. Extraemos la lógica a un componente interno
 function LoginForm() {
@@ -35,11 +35,11 @@ function LoginForm() {
 
   const from = searchParams.get("from") || "/";
 
-  useEffect(() => {
+  /*  useEffect(() => {
     if (user) {
       router.push(from);
     }
-  }, [user, router, from]);
+  }, [user, router, from]); */
 
   const handleChange =
     (field: keyof LoginData) =>
