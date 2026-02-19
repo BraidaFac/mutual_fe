@@ -1,63 +1,25 @@
-export interface Cliente {
-  id: string
-  nombre: string
-  telefono: string
-  email: string
-  fuerzaId: string
-  localidadId: string
-  fechaCreacion: Date
-}
+// Re-exportar todos los tipos desde archivos modulares
 
-export interface Fuerza {
-  id: string
-  nombre: string
-  descripcion?: string
-}
+// Tipos de autenticación
+export * from "./auth.types";
 
-export interface Localidad {
-  id: string
-  nombre: string
-  provincia: string
-}
+// Tipos comunes (Fuerza, Documento, Provincia, TipoPrestamo, etc.)
+export * from "./common.types";
 
-export interface Documento {
-  id: string
-  nombre: string
-  descripcion?: string
-  obligatorio: boolean
-}
+// Tipos de clientes y representantes
+export * from "./cliente.types";
 
-export interface Estado {
-  id: string
-  nombre: string
-  descripcion?: string
-  secuencia: number
-  diasMaximos: number
-  esUrgente: boolean
-  color: "urgent" | "warning" | "success" | "info"
-}
+// Tipos de flujos y pasos
+export * from "./flujo.types";
 
-export interface Tramite {
-  id: string
-  clienteId: string
-  estadoId: string
-  fechaInicio: Date
-  fechaUltimoContacto: Date
-  observaciones?: string
-  documentosRecibidos: string[]
-}
+// Tipos de trámites
+export * from "./tramite.types";
 
-export interface ConfiguracionDocumento {
-  id: string
-  fuerzaId: string
-  estadoId: string
-  documentoId: string
-  obligatorio: boolean
-}
+// Tipos de fuerzas
+export * from "./fuerza.types";
 
-export interface TramiteConDetalles extends Tramite {
-  cliente: Cliente
-  estado: Estado
-  fuerza: Fuerza
-  localidad: Localidad
-}
+// Tipos de documentos
+export * from "./documento.types";
+
+// Tipos de ETL/Importación
+export * from "./etl.types";

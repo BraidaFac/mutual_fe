@@ -1,20 +1,24 @@
 "use client";
+import { useAuth } from "@/context/AuthContext";
+import { Role } from "@/types/auth.types";
 import {
   Business as Building,
   ChevronLeft,
   ChevronRight,
+  CloudUpload,
   CreditCard,
   Description as FileText,
   Home,
+  Logout,
   LocationOn as MapPin,
   Menu,
+  PersonAdd,
   Settings,
   People as Users,
   Close as X,
 } from "@mui/icons-material";
 import {
   AppBar,
-  Avatar,
   Box,
   Drawer,
   IconButton,
@@ -31,7 +35,7 @@ import {
   useTheme,
 } from "@mui/material";
 import { usePathname, useRouter } from "next/navigation";
-import React from "react";
+import React, { useMemo, useState } from "react";
 
 interface NavigationItem {
   id: string;
@@ -43,6 +47,7 @@ interface NavigationItem {
 const navigationItems: NavigationItem[] = [
   { id: "dashboard", label: "Dashboard", icon: Home, href: "/" },
   { id: "clientes", label: "Clientes", icon: Users, href: "/clientes" },
+  { id: "leads", label: "Leads", icon: PersonAdd, href: "/leads" },
   { id: "tramites", label: "Trámites", icon: CreditCard, href: "/tramites" },
   { id: "fuerzas", label: "Fuerzas", icon: Building, href: "/fuerzas" },
   {
@@ -57,7 +62,12 @@ const navigationItems: NavigationItem[] = [
     icon: FileText,
     href: "/documentos",
   },
-  { id: "estados", label: "Estados", icon: Settings, href: "/estados" },
+  {
+    id: "importacion",
+    label: "Importación",
+    icon: CloudUpload,
+    href: "/importacion",
+  },
   {
     id: "configuracion",
     label: "Configuración",
@@ -66,14 +76,22 @@ const navigationItems: NavigationItem[] = [
   },
 ];
 
+const REPRESENTANTE_ALLOWED_PREFIXES = ["/tramites", "/clientes", "/leads"];
+
+const isAllowedForRepresentante = (href: string) =>
+  REPRESENTANTE_ALLOWED_PREFIXES.some(
+    (prefix) => href === prefix || href.startsWith(`${prefix}/`),
+  );
+
 export function SideBar() {
   const router = useRouter();
   const pathname = usePathname();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("lg"));
-  const [isPinned, setIsPinned] = React.useState(false); // Para controlar si está fijado
-  const [isMobileOpen, setIsMobileOpen] = React.useState(false);
-  const [isHovered, setIsHovered] = React.useState(false);
+  const { user, logout, isLoading } = useAuth();
+  const [isPinned, setIsPinned] = useState(false); // Para controlar si está fijado
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
 
   // En desktop: muestra expandido si hay hover O si está fijado manualmente
   const shouldShowExpanded = isMobile || isHovered || isPinned;
@@ -91,9 +109,41 @@ export function SideBar() {
     return pathname.startsWith(href);
   };
 
+  const canSeeAll = useMemo(() => {
+    return user?.role === Role.ADMIN || user?.role === Role.MANAGER;
+  }, [user?.role]);
+
+  const filteredNavigationItems = useMemo(() => {
+    if (!user) return [];
+    if (canSeeAll) return navigationItems;
+    if (user.role === Role.REPRESENTANTE) {
+      return navigationItems.filter((item) =>
+        isAllowedForRepresentante(item.href),
+      );
+    }
+    return [];
+  }, [canSeeAll, user]);
+
+  const roleLabel = useMemo(() => {
+    if (!user?.role) return "";
+    if (user.role === Role.ADMIN) return "Admin";
+    if (user.role === Role.MANAGER) return "Manager";
+    if (user.role === Role.REPRESENTANTE) return "Representante";
+  }, [user?.role]);
+
+  const displayName =
+    user?.representante?.fullName || user?.username || "Usuario";
+
   const getCurrentPageTitle = () => {
-    const currentItem = navigationItems.find((item) => isActive(item.href));
+    const currentItem = filteredNavigationItems.find((item) =>
+      isActive(item.href),
+    );
     return currentItem?.label || "Dashboard";
+  };
+
+  const handleLogout = async () => {
+    await logout();
+    setIsMobileOpen(false);
   };
 
   const drawerContent = (
@@ -171,23 +221,20 @@ export function SideBar() {
 
       {/* Navigation */}
       <Box sx={{ flex: 1, p: 1 }}>
-        <List disablePadding>
-          {navigationItems.map((item) => {
+        <List disablePadding={true}>
+          {filteredNavigationItems.map((item) => {
             const Icon = item.icon;
             const active = isActive(item.href);
 
             return (
-              <ListItem key={item.id} disablePadding>
+              <ListItem key={item.id} disablePadding={true}>
                 <ListItemButton
                   onClick={() => handleNavigation(item.href)}
                   sx={{
                     borderRadius: 1,
-                    mb: 0.5,
-                    minHeight: 44,
-                    justifyContent: shouldShowExpanded
-                      ? "flex-start"
-                      : "center",
-                    px: shouldShowExpanded ? 2 : 1,
+                    height: 44,
+                    justifyContent: "center",
+                    px: 2,
                     backgroundColor: active ? "primary.50" : "transparent",
                     color: active ? "primary.main" : "text.primary",
                     "&:hover": {
@@ -209,7 +256,7 @@ export function SideBar() {
                   {shouldShowExpanded && (
                     <ListItemText
                       primary={item.label}
-                      primaryTypographyProps={{
+                      sx={{
                         fontSize: "0.875rem",
                         fontWeight: active ? 600 : 400,
                       }}
@@ -232,27 +279,83 @@ export function SideBar() {
             alignItems: "center",
             borderTop: "1px solid",
             borderColor: "divider",
+            minWidth: 240,
+            flexShrink: 0,
+            animation: "footerFadeIn 0.3s ease-out forwards",
+            "@keyframes footerFadeIn": {
+              "0%": { opacity: 0 },
+              "70%": { opacity: 0 },
+              "100%": { opacity: 1 },
+            },
           }}
         >
-          <Avatar
-            sizes="small"
-            alt="Riley Carter"
-            src="/static/images/avatar/7.jpg"
-            sx={{ width: 36, height: 36 }}
-          />
-          <Box sx={{ mr: "auto" }}>
+          <Box
+            sx={{
+              flex: 1,
+              minWidth: 0,
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+            }}
+          >
             <Typography
               variant="body2"
+              noWrap
               sx={{ fontWeight: 500, lineHeight: "16px" }}
             >
-              Riley Carter
+              {displayName}
             </Typography>
-            <Typography variant="caption" sx={{ color: "text.secondary" }}>
-              riley@email.com
+            <Typography
+              variant="caption"
+              noWrap
+              sx={{ color: "text.secondary" }}
+            >
+              {roleLabel}
             </Typography>
           </Box>
         </Stack>
       )}
+
+      <Box sx={{ p: 1, borderTop: "1px solid", borderColor: "divider" }}>
+        <List disablePadding>
+          <ListItem disablePadding>
+            <ListItemButton
+              onClick={handleLogout}
+              disabled={isLoading}
+              sx={{
+                borderRadius: 1,
+                minHeight: 44,
+                justifyContent: shouldShowExpanded ? "flex-start" : "center",
+                px: shouldShowExpanded ? 2 : 1,
+                color: "text.primary",
+                "&:hover": {
+                  backgroundColor: "action.hover",
+                },
+                transition: "all 0.2s ease-in-out",
+              }}
+              title={!shouldShowExpanded ? "Cerrar sesión" : undefined}
+            >
+              <ListItemIcon
+                sx={{
+                  minWidth: shouldShowExpanded ? 40 : "auto",
+                  color: "text.secondary",
+                  justifyContent: "center",
+                }}
+              >
+                <Logout sx={{ fontSize: 20 }} />
+              </ListItemIcon>
+              {shouldShowExpanded && (
+                <ListItemText
+                  primary="Cerrar sesión"
+                  sx={{
+                    fontSize: "0.875rem",
+                    fontWeight: 500,
+                  }}
+                />
+              )}
+            </ListItemButton>
+          </ListItem>
+        </List>
+      </Box>
     </Box>
   );
 
@@ -285,43 +388,43 @@ export function SideBar() {
       )}
 
       {/* Mobile Drawer */}
-      <Drawer
-        variant="temporary"
-        open={isMobileOpen}
-        onClose={() => setIsMobileOpen(false)}
-        ModalProps={{
-          keepMounted: true, // Better open performance on mobile.
-        }}
-        sx={{
-          display: { xs: "block", lg: "none" },
-          "& .MuiDrawer-paper": {
-            boxSizing: "border-box",
-            width: effectiveWidth,
-          },
-        }}
-      >
-        {drawerContent}
-      </Drawer>
 
-      {/* Desktop Drawer */}
-      <Drawer
-        variant="permanent"
-        sx={{
-          display: { xs: "none", lg: "block" },
-          "& .MuiDrawer-paper": {
-            boxSizing: "border-box",
-            width: effectiveWidth,
-            transition: theme.transitions.create("width", {
-              easing: theme.transitions.easing.sharp,
-              duration: theme.transitions.duration.enteringScreen,
-            }),
-            overflowX: "hidden",
-          },
-        }}
-        open
-      >
-        {drawerContent}
-      </Drawer>
+      {isMobile ? (
+        <Drawer
+          variant="temporary"
+          open={isMobileOpen}
+          onClose={() => setIsMobileOpen(false)}
+          ModalProps={{
+            keepMounted: true, // Better open performance on mobile.
+          }}
+          sx={{
+            "& .MuiDrawer-paper": {
+              boxSizing: "border-box",
+              width: effectiveWidth,
+            },
+          }}
+        >
+          {drawerContent}
+        </Drawer>
+      ) : (
+        <Drawer
+          variant="permanent"
+          sx={{
+            "& .MuiDrawer-paper": {
+              boxSizing: "border-box",
+              width: effectiveWidth,
+              transition: theme.transitions.create("width", {
+                easing: theme.transitions.easing.sharp,
+                duration: theme.transitions.duration.enteringScreen,
+              }),
+              overflowX: "hidden",
+            },
+          }}
+          open
+        >
+          {drawerContent}
+        </Drawer>
+      )}
 
       {/* Mobile toolbar spacer */}
       {isMobile && <Toolbar />}

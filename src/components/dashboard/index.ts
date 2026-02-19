@@ -1,0 +1,9 @@
+export { default as AccionesRapidasDialog } from "./AccionesRapidasDialog";
+export { default as DashboardContent } from "./DashboardContent";
+export { default as DashboardStats } from "./DashboardStats";
+export { default as FiltrosDashboard } from "./FiltrosDashboard";
+export { default as TramiteCard } from "./TramiteCard";
+export { default as TramiteMiniCard } from "./TramiteMiniCard";
+export { default as TramitesPorFuerzaView } from "./TramitesPorFuerzaView";
+export { default as TramitesPorPasoView } from "./TramitesPorPasoView";
+export { default as TramitesPorTipoPrestamoView } from "./TramitesPorTipoPrestamoView";
