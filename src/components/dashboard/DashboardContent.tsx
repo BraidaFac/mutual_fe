@@ -100,18 +100,14 @@ export default function DashboardContent() {
     setDialogoAccionAbierto(true);
   };
 
-  const handleConfirmarAccion = async (
+  /*   const handleConfirmarAccion = async (
     tramite: Tramite,
     accion: "avanzar" | "contactar",
-    datos?: { observaciones?: string }
+    datos?: { observaciones?: string },
   ) => {
     try {
       if (accion === "avanzar") {
-        await tramitesService.avanzarPaso(
-          tramite.id,
-          datos?.observaciones,
-          "Usuario" // Aquí deberías usar el usuario actual del contexto
-        );
+        await tramitesService.avanzarPaso(tramite.id, tramite.pasoActual.id);
         enqueueSnackbar("Trámite avanzado correctamente", {
           variant: "success",
         });
@@ -127,23 +123,17 @@ export default function DashboardContent() {
     } catch (err) {
       enqueueSnackbar(
         err instanceof Error ? err.message : "Error al realizar la acción",
-        { variant: "error" }
+        { variant: "error" },
       );
     }
-  };
+  }; */
 
   const handleNuevoTramite = () => {
     router.push("/tramites?nuevo=true");
   };
 
   if (loading) {
-    return (
-      <LoadingSpinner
-        message="Cargando dashboard..."
-        fullScreen={true}
-        size={60}
-      />
-    );
+    return <LoadingSpinner />;
   }
 
   if (error) {
@@ -289,7 +279,7 @@ export default function DashboardContent() {
           setTramiteSeleccionado(null);
           setAccionSeleccionada(null);
         }}
-        onConfirmar={handleConfirmarAccion}
+        onConfirmar={() => {}}
       />
     </Box>
   );

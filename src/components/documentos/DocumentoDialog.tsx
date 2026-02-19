@@ -23,8 +23,8 @@ interface DocumentoDialogProps {
 }
 
 interface DocumentoFormData {
-  nombre: string;
-  descripcion: string;
+  nombre: string | null;
+  descripcion: string | null;
 }
 
 export default function DocumentoDialog({
@@ -46,7 +46,7 @@ export default function DocumentoDialog({
     if (open) {
       if (modoEdicion && documento) {
         setFormData({
-          nombre: documento.nombre,
+          nombre: documento.nombre || "",
           descripcion: documento.descripcion || "",
         });
       } else {
@@ -59,7 +59,7 @@ export default function DocumentoDialog({
 
   const validateForm = (): boolean => {
     const newErrors: Partial<DocumentoFormData> = {};
-    if (!formData.nombre.trim()) {
+    if (!formData.nombre?.trim()) {
       newErrors.nombre = "El nombre es requerido";
     }
     setErrors(newErrors);
@@ -74,12 +74,12 @@ export default function DocumentoDialog({
       setError(null);
 
       const dataToSend = {
-        nombre: formData.nombre.trim(),
-        descripcion: formData.descripcion.trim() || undefined,
+        nombre: formData.nombre?.trim() || "",
+        descripcion: formData.descripcion?.trim() || "",
       };
 
       if (modoEdicion && documento) {
-        await documentosService.update(documento.documentoId, dataToSend);
+        await documentosService.update(documento.id!, dataToSend);
       } else {
         await documentosService.create(dataToSend);
       }
@@ -87,7 +87,7 @@ export default function DocumentoDialog({
       onGuardado();
     } catch (err) {
       setError(
-        err instanceof Error ? err.message : "Error al guardar documento"
+        err instanceof Error ? err.message : "Error al guardar documento",
       );
     } finally {
       setLoading(false);
@@ -119,9 +119,9 @@ export default function DocumentoDialog({
             type="text"
             name="nombre"
             label="Nombre del Documento"
-            value={formData.nombre}
+            value={formData.nombre || ""}
             onChange={(value) => handleFieldChange("nombre", value)}
-            error={errors.nombre}
+            error={errors.nombre || ""}
             required
             disabled={loading}
             placeholder="Ej: DNI, Recibo de Sueldo, etc."
@@ -131,8 +131,9 @@ export default function DocumentoDialog({
             type="text"
             name="descripcion"
             label="Descripción"
-            value={formData.descripcion}
+            value={formData.descripcion || ""}
             onChange={(value) => handleFieldChange("descripcion", value)}
+            error={errors.descripcion || ""}
             disabled={loading}
             multiline
             rows={3}
