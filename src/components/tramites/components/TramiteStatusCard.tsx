@@ -40,8 +40,8 @@ export const TramiteStatusCard: React.FC<TramiteStatusCardProps> = ({
   const calculateProgress = () => {
     if (!tramite.flujo || !tramite.pasoActual) return 0;
 
-    const totalPasos = tramite.flujo.pasos.filter((p) => p.activo).length;
-    const pasoActualSecuencia = tramite.pasoActual.secuencia;
+    const totalPasos = tramite.flujo.pasos.length;
+    const pasoActualSecuencia = tramite.pasoActual.orden;
 
     return Math.round((pasoActualSecuencia / totalPasos) * 100);
   };
@@ -205,7 +205,7 @@ export const TramiteStatusCard: React.FC<TramiteStatusCardProps> = ({
             <Typography variant="caption" color="text.secondary" sx={{ ml: 2 }}>
               Último contacto:{" "}
               {new Date(tramite.fechaUltimoContacto).toLocaleDateString(
-                "es-AR"
+                "es-AR",
               )}
             </Typography>
           )}

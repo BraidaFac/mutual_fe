@@ -16,8 +16,8 @@ export const clientesService = {
       queryParams.append("provinciaId", filtros.provinciaId.toString());
     if (filtros?.fuerzaId)
       queryParams.append("fuerzaId", filtros.fuerzaId.toString());
-    if (filtros?.estadoId)
-      queryParams.append("estadoId", filtros.estadoId.toString());
+    if (filtros?.estado)
+      queryParams.append("estado", filtros.estado.toString());
 
     const query = queryParams.toString();
     return apiRequest<Cliente[]>(`/clientes/all${query ? `?${query}` : ""}`);
@@ -25,7 +25,7 @@ export const clientesService = {
 
   // Obtener clientes paginados
   getPaginated: async (
-    filtros?: FiltroClientes
+    filtros?: FiltroClientes,
   ): Promise<PaginatedResponse<Cliente>> => {
     const queryParams = new URLSearchParams();
     if (filtros?.search) queryParams.append("search", filtros.search);
@@ -34,14 +34,14 @@ export const clientesService = {
       queryParams.append("provinciaId", filtros.provinciaId.toString());
     if (filtros?.fuerzaId)
       queryParams.append("fuerzaId", filtros.fuerzaId.toString());
-    if (filtros?.estadoId)
-      queryParams.append("estadoId", filtros.estadoId.toString());
+    if (filtros?.estado)
+      queryParams.append("estado", filtros.estado.toString());
     if (filtros?.page) queryParams.append("page", filtros.page.toString());
     if (filtros?.limit) queryParams.append("limit", filtros.limit.toString());
 
     const query = queryParams.toString();
     return apiRequest<PaginatedResponse<Cliente>>(
-      `/clientes${query ? `?${query}` : ""}`
+      `/clientes${query ? `?${query}` : ""}`,
     );
   },
 
@@ -58,7 +58,10 @@ export const clientesService = {
     });
   },
 
-  createByLead: async (leadId: number, cliente: ClienteFormData): Promise<Cliente> => {
+  createByLead: async (
+    leadId: number,
+    cliente: ClienteFormData,
+  ): Promise<Cliente> => {
     return apiRequest<Cliente>(`/clientes/lead/${leadId}`, {
       method: "POST",
       body: JSON.stringify(cliente),
@@ -68,7 +71,7 @@ export const clientesService = {
   // Actualizar cliente
   update: async (
     id: number,
-    cliente: Partial<ClienteFormData>
+    cliente: Partial<ClienteFormData>,
   ): Promise<Cliente> => {
     return apiRequest<Cliente>(`/clientes/${id}`, {
       method: "PATCH",
@@ -86,7 +89,7 @@ export const clientesService = {
   // Buscar clientes por nombre
   buscarPorNombre: async (nombre: string): Promise<Cliente[]> => {
     return apiRequest<Cliente[]>(
-      `/clientes/buscar?nombre=${encodeURIComponent(nombre)}`
+      `/clientes/buscar?nombre=${encodeURIComponent(nombre)}`,
     );
   },
 

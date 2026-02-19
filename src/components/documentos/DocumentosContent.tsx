@@ -19,7 +19,7 @@ import DocumentoDialog from "./DocumentoDialog";
 export default function DocumentosContent() {
   const [documentos, setDocumentos] = useState<Documento[]>([]);
   const [documentosFiltrados, setDocumentosFiltrados] = useState<Documento[]>(
-    []
+    [],
   );
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -40,9 +40,9 @@ export default function DocumentosContent() {
     if (searchValue.trim()) {
       const filtered = documentos.filter(
         (doc) =>
-          doc.nombre.toLowerCase().includes(searchValue.toLowerCase()) ||
+          doc.nombre?.toLowerCase().includes(searchValue.toLowerCase()) ||
           (doc.descripcion &&
-            doc.descripcion.toLowerCase().includes(searchValue.toLowerCase()))
+            doc.descripcion.toLowerCase().includes(searchValue.toLowerCase())),
       );
       setDocumentosFiltrados(filtered);
     } else {
@@ -58,7 +58,7 @@ export default function DocumentosContent() {
       setDocumentos(data);
     } catch (err) {
       setError(
-        err instanceof Error ? err.message : "Error al cargar documentos"
+        err instanceof Error ? err.message : "Error al cargar documentos",
       );
     } finally {
       setLoading(false);
@@ -85,13 +85,13 @@ export default function DocumentosContent() {
   const confirmarEliminacion = async () => {
     if (!documentoAEliminar) return;
     try {
-      await documentosService.delete(documentoAEliminar.documentoId);
+      await documentosService.delete(documentoAEliminar.id!);
       await cargarDatos();
       setDeleteDialogOpen(false);
       setDocumentoAEliminar(null);
     } catch (err) {
       setError(
-        err instanceof Error ? err.message : "Error al eliminar documento"
+        err instanceof Error ? err.message : "Error al eliminar documento",
       );
     }
   };
@@ -112,13 +112,7 @@ export default function DocumentosContent() {
   ];
 
   if (loading && documentos.length === 0) {
-    return (
-      <LoadingSpinner
-        message="Cargando documentos..."
-        fullScreen={true}
-        size={55}
-      />
-    );
+    return <LoadingSpinner />;
   }
 
   return (
@@ -135,7 +129,7 @@ export default function DocumentosContent() {
 
       <SearchAndFilters
         searchValue={searchValue}
-        onSearchChange={setSearchValue}
+        onSearchChange={(value) => setSearchValue(value as string)}
         searchPlaceholder="Buscar documentos..."
       />
 

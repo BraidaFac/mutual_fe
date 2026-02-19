@@ -19,9 +19,10 @@ import {
 } from "@mui/material";
 import NextLink from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react"; // 1. Importar Suspense
 
-export default function LoginPage() {
+// 2. Extraemos la lógica a un componente interno
+function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { login, error, user } = useAuth();
@@ -32,10 +33,8 @@ export default function LoginPage() {
     password: "",
   });
 
-  // Obtener la URL de origen (de dónde venía el usuario)
   const from = searchParams.get("from") || "/";
 
-  // Redirigir si ya está autenticado
   useEffect(() => {
     if (user) {
       router.push(from);
@@ -49,15 +48,12 @@ export default function LoginPage() {
         ...prev,
         [field]: event.target.value,
       }));
-      // Limpiar error cuando el usuario empiece a escribir
     };
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-
     const response = await login(formData);
     if (response) {
-      // Redirigir a la página de origen o al dashboard
       router.push(from);
       showSuccess("¡Bienvenido! Sesión iniciada correctamente");
     }
@@ -79,7 +75,6 @@ export default function LoginPage() {
           py: 3,
         }}
       >
-        {/* Logo */}
         <Box sx={{ mb: 4, textAlign: "center" }}>
           <Typography
             variant="h4"
@@ -94,7 +89,6 @@ export default function LoginPage() {
           </Typography>
         </Box>
 
-        {/* Formulario de Login */}
         <Card elevation={8} sx={{ width: "100%", maxWidth: 400 }}>
           <CardContent sx={{ p: 4 }}>
             <Typography variant="h5" component="h2" align="center" gutterBottom>
@@ -111,7 +105,6 @@ export default function LoginPage() {
               <TextField
                 fullWidth
                 label="Usuario"
-                name="username"
                 value={formData.username}
                 onChange={handleChange("username")}
                 margin="normal"
@@ -123,7 +116,6 @@ export default function LoginPage() {
               <TextField
                 fullWidth
                 label="Contraseña"
-                name="password"
                 type={showPassword ? "text" : "password"}
                 value={formData.password}
                 onChange={handleChange("password")}
@@ -135,7 +127,6 @@ export default function LoginPage() {
                     endAdornment: (
                       <InputAdornment position="end">
                         <IconButton
-                          aria-label="toggle password visibility"
                           onClick={togglePasswordVisibility}
                           edge="end"
                         >
@@ -174,7 +165,6 @@ export default function LoginPage() {
           </CardContent>
         </Card>
 
-        {/* Footer */}
         <Box sx={{ mt: 4, textAlign: "center" }}>
           <Typography variant="body2" color="text.secondary">
             © 2024 CRM Mutual. Todos los derechos reservados.
@@ -182,5 +172,14 @@ export default function LoginPage() {
         </Box>
       </Box>
     </Container>
+  );
+}
+
+// 3. El export default envuelve el componente en Suspense
+export default function LoginPage() {
+  return (
+    <Suspense fallback={null}>
+      <LoginForm />
+    </Suspense>
   );
 }

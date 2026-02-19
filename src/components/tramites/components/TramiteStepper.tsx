@@ -9,7 +9,6 @@ import {
   PlayArrow as CurrentIcon,
   NavigateNext as NextIcon,
   RadioButtonUnchecked as PendingIcon,
-  Warning as WarningIcon,
 } from "@mui/icons-material";
 import {
   Box,
@@ -54,12 +53,10 @@ export const TramiteStepper: React.FC<TramiteStepperProps> = ({
     );
   }
 
-  const pasos = tramite.flujo.pasos
-    .filter((paso) => paso.activo)
-    .sort((a, b) => a.secuencia - b.secuencia);
+  const pasos = tramite.flujo.pasos.sort((a, b) => a.orden - b.orden);
 
   const activeStep = pasos.findIndex(
-    (paso) => paso.id === tramite.pasoActual.id
+    (paso) => paso.id === tramite.pasoActual.id,
   );
 
   const getStepIcon = (index: number, paso: PasoTramite) => {
@@ -68,9 +65,6 @@ export const TramiteStepper: React.FC<TramiteStepperProps> = ({
     }
     if (index === activeStep) {
       return <CurrentIcon color="primary" />;
-    }
-    if (paso.requiereIntervencionManual) {
-      return <WarningIcon color="warning" />;
     }
     return <PendingIcon color="disabled" />;
   };
@@ -90,14 +84,7 @@ export const TramiteStepper: React.FC<TramiteStepperProps> = ({
           <Typography variant="body2" fontWeight="medium">
             {paso.nombre}
           </Typography>
-          {paso.requiereIntervencionManual && (
-            <Chip
-              label="Manual"
-              size="small"
-              color="warning"
-              variant="outlined"
-            />
-          )}
+
           {status === "active" && (
             <Chip label="Actual" size="small" color="primary" />
           )}
@@ -185,15 +172,6 @@ export const TramiteStepper: React.FC<TramiteStepperProps> = ({
               }}
             >
               {paso.nombre}
-              {paso.requiereIntervencionManual && (
-                <Chip
-                  label="Manual"
-                  size="small"
-                  color="warning"
-                  variant="outlined"
-                  sx={{ ml: 1, fontSize: "0.75rem" }}
-                />
-              )}
             </StepLabel>
           </Step>
         ))}

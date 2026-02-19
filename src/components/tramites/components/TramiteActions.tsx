@@ -149,7 +149,7 @@ export const TramiteActions: React.FC<TramiteActionsProps> = ({
   if (loading) {
     return (
       <Box sx={{ display: "flex", justifyContent: "center", py: 2 }}>
-        <LoadingSpinner size={24} />
+        <LoadingSpinner />
       </Box>
     );
   }
@@ -267,12 +267,12 @@ export const TramiteActions: React.FC<TramiteActionsProps> = ({
             {getActionDialogContent()}
           </Typography>
 
-          {actionDialog.type === "advance" &&
+          {/* {actionDialog.type === "advance" &&
             nextStep?.requiereIntervencionManual && (
               <Alert severity="warning" sx={{ mb: 2 }}>
                 El siguiente paso requiere intervención manual.
               </Alert>
-            )}
+            )} */}
 
           {actionDialog.type === "cancel" && (
             <Alert severity="error" sx={{ mb: 2 }}>
