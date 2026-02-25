@@ -31,13 +31,11 @@ export interface Entity {
 
 export type FileType = "csv" | "xlsx";
 
-
 export enum RelationProperty {
-  PROVINCIA = 'PROVINCIA',
-  FUERZA = 'FUERZA',
-  REPRESENTANTE = 'REPRESENTANTE',
+  PROVINCIA = "PROVINCIA",
+  FUERZA = "FUERZA",
+  REPRESENTANTE = "REPRESENTANTE",
 }
-
 
 /**
  * Configuración de mapeo de una columna
@@ -46,7 +44,7 @@ export interface ColumnMapping {
   /** ID único del mapeo (para React keys) */
   id?: number;
   temporalId?: string;
-  sourceColumn?: string ;
+  sourceColumn?: string;
   defaultValue?: string;
   isRequired: boolean;
   template?: ImportTemplate;
@@ -54,15 +52,14 @@ export interface ColumnMapping {
   relationProperty?: RelationProperty;
 }
 
-
 export enum TargetProperty {
-  PROVINCIA = 'provincia',
-  FUERZA = 'fuerza',
-  REPRESENTANTE = 'representante',
-  FULL_NAME = 'fullName',
-  EMAIL = 'email',
-  TELEFONO = 'telefono',
-  ESTADO = 'estado',
+  PROVINCIA = "provincia",
+  FUERZA = "fuerza",
+  REPRESENTANTE = "representante",
+  FULL_NAME = "fullName",
+  EMAIL = "email",
+  TELEFONO = "telefono",
+  ESTADO = "estado",
 }
 
 /**
@@ -126,6 +123,7 @@ export interface BulkInsertResult {
     error: string;
   }>;
   insertTimeMs: number;
+  rowNumber: number;
 }
 
 /**
@@ -136,7 +134,6 @@ export interface ExecuteImportRequest {
   file: File;
 }
 
-
 export interface FiltroTemplates {
   page?: number;
   limit?: number;
@@ -145,4 +142,3 @@ export interface FiltroTemplates {
   provinciaId?: number;
   fileType?: FileType;
 }
-

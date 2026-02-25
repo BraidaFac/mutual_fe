@@ -283,7 +283,6 @@ export default function ClientesContent() {
         loading={loading}
         emptyMessage="No se encontraron clientes"
         onRowClick={handleVerDetalle}
-        serverSidePagination={true}
         paginationMeta={paginationMeta}
         onPageChange={handlePageChange}
       />

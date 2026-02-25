@@ -33,11 +33,16 @@ interface UseImportExecutionReturn extends UseImportExecutionState {
 
   // Manejo de archivo
   setFile: (file: File | null) => void;
-  validateSelectedFile: () => { success: true; file: File } | { success: false; error: string };
+  validateSelectedFile: () =>
+    | { success: true; file: File }
+    | { success: false; error: string };
   clearFile: () => void;
 
   // Ejecución
-  executeImport: () => Promise<{ success: true; data: BulkInsertResult } | { success: false; error: string }>;
+  executeImport: () => Promise<
+    | { success: true; data: BulkInsertResult }
+    | { success: false; error: string }
+  >;
 
   // Estado
   canExecute: boolean;
@@ -55,7 +60,6 @@ export function useImportExecution(): UseImportExecutionReturn {
   });
 
   const { handleError, showSuccess } = useErrorHandler();
-
 
   // ============================================
   // Carga de templates
@@ -112,7 +116,7 @@ export function useImportExecution(): UseImportExecutionReturn {
       }
       // Validar tipo de archivo si hay template seleccionado
       const expectedType = state.selectedTemplate?.fileType;
-      const validation = validateFile(file, expectedType as 'csv' | 'xlsx');
+      const validation = validateFile(file, expectedType as "csv" | "xlsx");
 
       if (!validation.success) {
         setState((prev) => ({
@@ -131,10 +135,12 @@ export function useImportExecution(): UseImportExecutionReturn {
         fileValidation: null,
       }));
     },
-    [state.selectedTemplate]
+    [state.selectedTemplate],
   );
 
-  const validateSelectedFile = useCallback(() : { success: true; file: File } | { success: false; error: string } => {
+  const validateSelectedFile = useCallback(():
+    | { success: true; file: File }
+    | { success: false; error: string } => {
     if (!state.selectedFile || !state.selectedTemplate) {
       setState((prev) => ({
         ...prev,
@@ -144,7 +150,10 @@ export function useImportExecution(): UseImportExecutionReturn {
     }
     setState((prev) => ({ ...prev, validatingFile: true, fileError: null }));
 
-    const validation = validateFile(state.selectedFile, state.selectedTemplate.fileType);
+    const validation = validateFile(
+      state.selectedFile,
+      state.selectedTemplate.fileType,
+    );
 
     return validation;
   }, [state.selectedFile, state.selectedTemplate]);
@@ -158,48 +167,48 @@ export function useImportExecution(): UseImportExecutionReturn {
     }));
   }, []);
 
+  const executeImport = useCallback(async (): Promise<
+    | { success: true; data: BulkInsertResult }
+    | { success: false; error: string }
+  > => {
+    if (!state.selectedTemplate || !state.selectedFile) {
+      setState((prev) => ({
+        ...prev,
+        fileError: "Selecciona un template y un archivo",
+      }));
+      return { success: false, error: "Selecciona un template y un archivo" };
+    }
 
+    setState((prev) => ({ ...prev, executing: true }));
 
-  const executeImport =
-    useCallback(async (): Promise<{ success: true; data: BulkInsertResult } | { success: false; error: string }> => {
-      if (!state.selectedTemplate || !state.selectedFile) {
-        setState((prev) => ({
-          ...prev,
-          fileError: "Selecciona un template y un archivo",
-        }));
-        return { success: false, error: "Selecciona un template y un archivo" };
-      }
+    try {
+      const execution = await etlService.executeImport({
+        templateId: state.selectedTemplate.id,
+        file: state.selectedFile,
+      });
 
-      setState((prev) => ({ ...prev, executing: true }));
+      setState((prev) => ({
+        ...prev,
+        currentExecution: execution,
+        executing: false,
+      }));
 
-      try {
-        const execution = await etlService.executeImport({
-          templateId: state.selectedTemplate.id,
-          file: state.selectedFile,
-        });
-
-        setState((prev) => ({
-          ...prev,
-          currentExecution: execution,
-          executing: false,
-        }));
-
+      if (execution.failedCount === 0) {
         showSuccess("Importación completada exitosamente");
-
-        return { success: true, data: execution };
-      } catch (error) {
-        handleError(error);
-        setState((prev) => ({ ...prev, executing: false }));
-        return { success: false, error: "Error al ejecutar la importación" };
+      } else if (execution.failedCount === execution.insertedCount) {
+        handleError(
+          "Importación completada con todos los fallos. Verifique el template y el archivo",
+        );
+      } else {
+        showInfo("Importación completada con algunos fallos");
       }
-    }, [
-      state.selectedTemplate,
-      state.selectedFile,
-      handleError,
-      showSuccess,
-    ]);
-
-  
+      return { success: true, data: execution };
+    } catch (error) {
+      handleError(error);
+      setState((prev) => ({ ...prev, executing: false }));
+      return { success: false, error: "Error al ejecutar la importación" };
+    }
+  }, [state.selectedTemplate, state.selectedFile, handleError, showSuccess]);
 
   // ============================================
   // Utilidades
@@ -207,12 +216,10 @@ export function useImportExecution(): UseImportExecutionReturn {
 
   const canExecute = Boolean(
     state.selectedTemplate &&
-      state.selectedFile &&
-      !state.fileError &&
-      !state.executing
+    state.selectedFile &&
+    !state.fileError &&
+    !state.executing,
   );
-
-
 
   return {
     ...state,
@@ -224,4 +231,7 @@ export function useImportExecution(): UseImportExecutionReturn {
     executeImport,
     canExecute,
   };
+}
+function showInfo(arg0: string) {
+  throw new Error("Function not implemented.");
 }

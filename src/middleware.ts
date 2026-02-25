@@ -28,10 +28,10 @@ export function middleware(request: NextRequest) {
   // Verificar autenticación desde múltiples fuentes
   const refreshTokenFromCookie = request.cookies.get("refreshToken")?.value;
 
+  console.log("refreshTokenFromCookie", refreshTokenFromCookie);
   // Como fallback, también verificar si hay token en localStorage
   // (el middleware no puede acceder a localStorage, pero podemos inferirlo)
   const hasAuth = !!refreshTokenFromCookie;
-
 
   // ✅ IMPORTANTE: Permitir acceso a rutas públicas sin redirección
   const isPublicRoute = PUBLIC_ROUTES.some((route) => pathname === route);
