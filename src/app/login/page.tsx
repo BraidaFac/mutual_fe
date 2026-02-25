@@ -1,5 +1,6 @@
 "use client";
 
+import LoadingSpinner from "@/components/shared/LoadingSpinner";
 import { useAuth } from "@/context/AuthContext";
 import { useErrorHandler } from "@/hooks/useErrorHandler";
 import { LoginData } from "@/types/index";
@@ -17,7 +18,7 @@ import {
   Typography,
 } from "@mui/material";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useState } from "react"; // 1. Importar Suspense
+import { Suspense, useState } from "react"; // 1. Importar Suspense
 
 // 2. Extraemos la lógica a un componente interno
 function LoginForm() {
@@ -174,5 +175,11 @@ function LoginForm() {
 }
 
 export default function LoginPage() {
-  return <LoginForm />;
+  return (
+    <>
+      <Suspense fallback={<LoadingSpinner />}>
+        <LoginForm />
+      </Suspense>
+    </>
+  );
 }
