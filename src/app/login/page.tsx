@@ -17,7 +17,7 @@ import {
   Typography,
 } from "@mui/material";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Suspense, useState } from "react"; // 1. Importar Suspense
+import { useState } from "react"; // 1. Importar Suspense
 
 // 2. Extraemos la lógica a un componente interno
 function LoginForm() {
@@ -173,11 +173,6 @@ function LoginForm() {
   );
 }
 
-// 3. El export default envuelve el componente en Suspense
 export default function LoginPage() {
-  return (
-    <Suspense fallback={null}>
-      <LoginForm />
-    </Suspense>
-  );
+  return <LoginForm />;
 }
