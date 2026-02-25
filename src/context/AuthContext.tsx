@@ -166,7 +166,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     } finally {
       clearUser();
       setIsLoading(false);
-      router.push("/login");
+
+      if (typeof window !== "undefined") {
+        window.location.href = "/login";
+      }
     }
   }, [clearUser, router]);
 
