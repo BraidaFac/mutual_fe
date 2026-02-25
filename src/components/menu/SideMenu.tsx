@@ -13,6 +13,7 @@ import {
   LocationOn as MapPin,
   Menu,
   PersonAdd,
+  Badge as RepresentanteIcon,
   Settings,
   People as Users,
   Close as X,
@@ -58,6 +59,12 @@ const navigationItems: NavigationItem[] = [
     href: "/localidades",
   },
   {
+    id: "representantes",
+    label: "Representantes",
+    icon: RepresentanteIcon,
+    href: "/representantes",
+  },
+  {
     id: "documentos",
     label: "Documentos",
     icon: FileText,
@@ -70,8 +77,8 @@ const navigationItems: NavigationItem[] = [
     href: "/importacion",
   },
   {
-    id: "configuracion",
-    label: "Configuración",
+    id: "flujos",
+    label: "Flujos",
     icon: Settings,
     href: "/configuracion",
   },

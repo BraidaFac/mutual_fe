@@ -2,7 +2,7 @@
 import { Cliente } from "./cliente.types";
 import { TipoPrestamo } from "./common.types";
 import { Documento } from "./documento.types";
-import { FlujoTramite, PasoTramite } from "./flujo.types";
+import { FlujoTramite, PasoTramite, TipoPaso } from "./flujo.types";
 
 export interface Tramite {
   id: number;
@@ -65,6 +65,7 @@ export interface FiltroTramites {
   page?: number;
   limit?: number;
   pasoId?: number;
+  tipoPaso?: TipoPaso;
   tipoPrestamo?: TipoPrestamo;
   clienteId?: number;
   provinciaId?: number;

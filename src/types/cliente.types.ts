@@ -32,6 +32,15 @@ export interface Representante {
   user?: AuthUser;
 }
 
+/** Payload para crear representante (incluye datos del usuario) */
+export interface RepresentanteCreatePayload {
+  fullName: string;
+  email: string;
+  telefono?: string;
+  username: string;
+  password: string;
+}
+
 export interface Cliente {
   id: number;
   fullName: string;

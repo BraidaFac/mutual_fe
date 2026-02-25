@@ -80,12 +80,15 @@ export const tramitesService: {
     documento: TramiteDocumento,
   ) => Promise<TramiteDocumento>;
   getFileById: (id: number) => Promise<Blob>;
+  getReport: (filtros: FiltroTramites) => Promise<Blob>;
 } = {
   // Obtener todos los trámites (sin paginación - para compatibilidad)
   getAll: async (filtros?: FiltroTramites): Promise<Tramite[]> => {
     const queryParams = new URLSearchParams();
     if (filtros?.pasoId)
       queryParams.append("estadoId", filtros.pasoId.toString()); // Backend aún usa estadoId
+    if (filtros?.tipoPaso)
+      queryParams.append("tipoPaso", filtros.tipoPaso);
     if (filtros?.tipoPrestamo)
       queryParams.append("tipoPrestamo", filtros.tipoPrestamo);
     if (filtros?.clienteId)
@@ -108,6 +111,8 @@ export const tramitesService: {
 
     if (filtros?.pasoId)
       queryParams.append("estadoId", filtros.pasoId.toString()); // Backend aún usa estadoId
+    if (filtros?.tipoPaso)
+      queryParams.append("tipoPaso", filtros.tipoPaso);
     if (filtros?.tipoPrestamo)
       queryParams.append("tipoPrestamo", filtros.tipoPrestamo);
     if (filtros?.clienteId)
@@ -252,5 +257,24 @@ export const tramitesService: {
 
   getFileById: async (id: number): Promise<Blob> => {
     return await apiRequestBlob(`/tramites/documento/${id}/file`);
+  },
+
+  getReport: async (filtros: FiltroTramites): Promise<Blob> => {
+    const queryParams = new URLSearchParams();
+    if (filtros.fechaDesde)
+      queryParams.append("fechaDesde", filtros.fechaDesde.toISOString());
+    if (filtros.fechaHasta)
+      queryParams.append("fechaHasta", filtros.fechaHasta.toISOString());
+    if (filtros.tipoPaso) queryParams.append("tipoPaso", filtros.tipoPaso);
+    if (filtros.tipoPrestamo)
+      queryParams.append("tipoPrestamo", filtros.tipoPrestamo);
+    if (filtros.provinciaId)
+      queryParams.append("provinciaId", filtros.provinciaId.toString());
+    if (filtros.fuerzaId)
+      queryParams.append("fuerzaId", filtros.fuerzaId.toString());
+    if (filtros.search) queryParams.append("search", filtros.search);
+
+    const query = queryParams.toString();
+    return apiRequestBlob(`/tramites/report${query ? `?${query}` : ""}`);
   },
 };

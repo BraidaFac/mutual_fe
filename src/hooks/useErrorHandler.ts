@@ -7,6 +7,13 @@ export function useErrorHandler() {
   const router = useRouter();
   const { logout } = useAuth();
 
+  const showError = useCallback((message: string, duration = 3000) => {
+    toast.error(message, {
+      duration: duration,
+      position: "top-right",
+    });
+  }, []);
+
   const handleError = useCallback((error: unknown) => {
     if (error instanceof Error && "status" in error) {
       switch (error.status) {
@@ -76,7 +83,7 @@ export function useErrorHandler() {
         handleError(error);
       }
     },
-    [logout, router, handleError]
+    [logout, router, handleError],
   ); // ✅ Con dependencias necesarias
 
   const handlePermissionError = useCallback(
@@ -91,7 +98,7 @@ export function useErrorHandler() {
         handleError(error);
       }
     },
-    [handleError]
+    [handleError],
   ); // ✅ Con dependencia
 
   // Función para mostrar notificaciones de éxito
@@ -122,5 +129,6 @@ export function useErrorHandler() {
     showSuccess,
     showInfo,
     showWarning,
+    showError,
   };
 }

@@ -68,6 +68,8 @@ interface DataTableProps {
   serverSidePagination?: boolean;
   paginationMeta?: PaginationMeta;
   onPageChange?: (page: number, rowsPerPage: number) => void;
+  /** Estilos aplicados a cada fila según los datos (ej: color de fondo por estado) */
+  getRowSx?: (row: any) => Record<string, unknown>;
 }
 
 export default function DataTable({
@@ -83,6 +85,7 @@ export default function DataTable({
   serverSidePagination = false,
   paginationMeta,
   onPageChange,
+  getRowSx,
 }: DataTableProps) {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(rowsPerPageOptions[0]);
@@ -216,7 +219,10 @@ export default function DataTable({
                   hover
                   key={index}
                   onClick={onRowClick ? () => onRowClick(row) : undefined}
-                  sx={{ cursor: onRowClick ? "pointer" : "default" }}
+                  sx={{
+                    cursor: onRowClick ? "pointer" : "default",
+                    ...getRowSx?.(row),
+                  }}
                 >
                   {columns.map((column) => {
                     const value = row[column.id];

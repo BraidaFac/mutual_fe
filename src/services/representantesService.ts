@@ -2,6 +2,7 @@ import {
   FiltroRepresentantes,
   PaginatedResponse,
   Representante,
+  RepresentanteCreatePayload,
 } from "@/types/index";
 import { apiRequest } from "./api";
 
@@ -33,9 +34,9 @@ export const representantesService = {
     return apiRequest<Representante>(`/representantes/${id}`);
   },
 
-  // Crear nuevo representante
+  // Crear nuevo representante (incluye datos del usuario, el rol REPRESENTANTE lo asigna el backend)
   create: async (
-    representante: Omit<Representante, "representanteId">
+    representante: RepresentanteCreatePayload
   ): Promise<Representante> => {
     return apiRequest<Representante>("/representantes", {
       method: "POST",
@@ -46,10 +47,10 @@ export const representantesService = {
   // Actualizar representante
   update: async (
     id: number,
-    representante: Partial<Omit<Representante, "representanteId">>
+    representante: Partial<Representante> & { user?: { username?: string; password?: string } }
   ): Promise<Representante> => {
     return apiRequest<Representante>(`/representantes/${id}`, {
-      method: "PATCH    ",
+      method: "PATCH",
       body: JSON.stringify(representante),
     });
   },

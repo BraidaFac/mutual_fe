@@ -36,6 +36,8 @@ interface SearchAndFiltersProps {
     onChange: (value: string | number | Date | null) => void;
   }>;
   onClearFilters?: () => void;
+  /** Contenido adicional a la derecha (ej: botón Imprimir) */
+  rightContent?: React.ReactNode;
 }
 
 export default function SearchAndFilters({
@@ -44,6 +46,7 @@ export default function SearchAndFilters({
   searchPlaceholder = "Buscar...",
   filters = [],
   onClearFilters,
+  rightContent,
 }: SearchAndFiltersProps) {
   const [localSearch, setLocalSearch] = useState(searchValue);
 
@@ -92,7 +95,10 @@ export default function SearchAndFilters({
             spacing={2}
             alignItems="center"
             flexWrap="wrap"
+            justifyContent="space-between"
+            sx={{ width: "100%" }}
           >
+            <Stack direction="row" spacing={2} alignItems="center" flexWrap="wrap">
             {filters
               .filter((f) => f.type === "dateRange")
               .map((filter) => (
@@ -154,6 +160,8 @@ export default function SearchAndFilters({
                 )}
               </Stack>
             )}
+            </Stack>
+            {rightContent}
           </Stack>
         )}
       </Stack>

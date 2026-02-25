@@ -18,7 +18,7 @@ interface Option {
 }
 
 interface FormFieldProps {
-  type: "text" | "email" | "tel" | "number" | "select" | "checkbox";
+  type: "text" | "email" | "tel" | "number" | "password" | "select" | "checkbox";
   name: string;
   label: string;
   value: string | number | boolean;

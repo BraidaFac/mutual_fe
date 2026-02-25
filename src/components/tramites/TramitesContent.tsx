@@ -17,6 +17,7 @@ import {
   provinciasService,
   tramitesService,
 } from "@/services/index";
+import { TipoPaso } from "@/types/flujo.types";
 import {
   FiltroTramites,
   Fuerza,
@@ -29,6 +30,7 @@ import {
   Add as AddIcon,
   Delete,
   Edit as EditIcon,
+  Print as PrintIcon,
   WhatsApp as WhatsAppIcon,
 } from "@mui/icons-material";
 import { Box, Button, IconButton, Tooltip } from "@mui/material";
@@ -38,7 +40,7 @@ import { TramiteFormDialog } from "./TramiteFormDialog";
 import { TramiteManager } from "./TramiteManager";
 
 export default function TramitesContent() {
-  const { showSuccess, handleError } = useErrorHandler();
+  const { showSuccess, handleError, showError } = useErrorHandler();
   const [error, setError] = useState<string | null>(null);
   const [filtros, setFiltros] = useState<FiltroTramites>({
     page: 1,
@@ -150,6 +152,81 @@ export default function TramitesContent() {
     setFiltros((prev) => ({ ...prev, page, limit: rowsPerPage }));
   };
 
+  const handleImprimir = async () => {
+    if (!filtros.fechaDesde || !filtros.tipoPaso) {
+      showError(
+        "Para generar el reporte debe especificar al menos Fecha Desde y Estado del trámite",
+      );
+      return;
+    }
+    try {
+      const filtrosReporte = {
+        ...filtros,
+        fechaDesde: filtros.fechaDesde,
+        fechaHasta: filtros.fechaHasta,
+        tipoPaso: filtros.tipoPaso,
+        tipoPrestamo: filtros.tipoPrestamo,
+        provinciaId: filtros.provinciaId,
+        fuerzaId: filtros.fuerzaId,
+        search: searchValue || filtros.search,
+      };
+      const blob = await tramitesService.getReport(filtrosReporte);
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `reporte-tramites-${new Date().toISOString().slice(0, 10)}.xlsx`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      showSuccess("Reporte generado correctamente");
+    } catch (err) {
+      handleError(
+        err instanceof Error ? err.message : "Error al generar el reporte",
+      );
+    }
+  };
+
+  // Colores pastel para el chip según tipo de paso
+  const getChipColorForTipoPaso = (
+    tipoPaso?: TipoPaso,
+  ): "urgent" | "warning" | "success" | "info" | "default" => {
+    switch (tipoPaso) {
+      case TipoPaso.INICIAL:
+        return "info";
+      case TipoPaso.INTERMEDIO:
+        return "warning";
+      case TipoPaso.FINAL_EXITOSO:
+        return "success";
+      case TipoPaso.FINAL_RECHAZADO:
+        return "urgent";
+      default:
+        return "default";
+    }
+  };
+
+  // Colores pastel para el fondo de las filas según tipo de paso
+  const COLORES_PASTEL_POR_TIPO: Record<TipoPaso, string> = {
+    [TipoPaso.INICIAL]: "#e3f2fd", // Azul pastel
+    [TipoPaso.INTERMEDIO]: "#fff8e1", // Ámbar pastel
+    [TipoPaso.FINAL_EXITOSO]: "#e8f5e9", // Verde pastel
+    [TipoPaso.FINAL_RECHAZADO]: "#ffebee", // Rojo pastel
+  };
+
+  const getRowSx = (row: Tramite) => {
+    const tipoPaso = row.pasoActual?.tipoPaso;
+    if (!tipoPaso || !(tipoPaso in COLORES_PASTEL_POR_TIPO)) {
+      return {};
+    }
+    return {
+      backgroundColor: COLORES_PASTEL_POR_TIPO[tipoPaso as TipoPaso],
+      "&:hover": {
+        backgroundColor: COLORES_PASTEL_POR_TIPO[tipoPaso as TipoPaso],
+        filter: "brightness(0.97)",
+      },
+    };
+  };
+
   const columns: Column[] = [
     {
       id: "numeroTramite",
@@ -193,19 +270,13 @@ export default function TramitesContent() {
       format: (value: number) => formatMonto(value),
     },
     {
-      id: "flujo",
-      label: "Flujo",
-      format: (value: any, row: Tramite) =>
-        row.flujo ? `${row.flujo.nombre}` : "Sin flujo",
-    },
-    {
       id: "pasoActual",
       label: "Paso Actual",
       format: (value: any, row: Tramite) =>
         row.pasoActual ? (
           <StatusChip
             status={row.pasoActual.nombre}
-            color={row.pasoActual.color as any}
+            color={getChipColorForTipoPaso(row.pasoActual.tipoPaso)}
           />
         ) : (
           "Sin paso"
@@ -234,7 +305,25 @@ export default function TramitesContent() {
     },
   ];
 
+  const tipoPasoFilterOptions = [
+    { value: TipoPaso.INICIAL, label: "Trámites en Inicio" },
+    { value: TipoPaso.INTERMEDIO, label: "Trámites en Proceso" },
+    { value: TipoPaso.FINAL_EXITOSO, label: "Trámites Entregados" },
+    { value: TipoPaso.FINAL_RECHAZADO, label: "Trámites Rechazados" },
+  ];
+
   const filterOptions = [
+    {
+      key: "tipoPaso",
+      label: "Estado",
+      value: filtros.tipoPaso || "",
+      options: tipoPasoFilterOptions,
+      onChange: (value: string | number | Date | null) =>
+        setFiltros((prev) => ({
+          ...prev,
+          tipoPaso: (value as TipoPaso) || undefined,
+        })),
+    },
     {
       key: "tipoPrestamo",
       label: "Tipo de Préstamo",
@@ -328,6 +417,16 @@ export default function TramitesContent() {
           setFiltros({ page: 1, limit: 10 });
           setSearchValue("");
         }}
+        rightContent={
+          <Button
+            variant="outlined"
+            startIcon={<PrintIcon />}
+            onClick={handleImprimir}
+            size="small"
+          >
+            Imprimir
+          </Button>
+        }
       />
 
       <DataTable
@@ -339,6 +438,7 @@ export default function TramitesContent() {
         serverSidePagination={true}
         paginationMeta={paginationMeta}
         onPageChange={handlePageChange}
+        getRowSx={getRowSx}
       />
 
       {/* Dialogs */}
