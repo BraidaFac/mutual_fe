@@ -120,7 +120,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(loginData),
             credentials: "include", // Importante para cookies httpOnly
-          }
+          },
         );
 
         if (!res.ok) {
@@ -148,7 +148,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setIsLoading(false);
       }
     },
-    [persistUser, clearUser]
+    [persistUser, clearUser],
   );
 
   // Logout
@@ -183,7 +183,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(registerData),
-          }
+          },
         );
 
         if (!res.ok) {
@@ -202,7 +202,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setIsLoading(false);
       }
     },
-    []
+    [],
   );
 
   // Refrescar información del usuario
@@ -212,7 +212,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         credentials: "include",
         headers: {
           Authorization: `Bearer ${localStorage.getItem(
-            STORAGE_KEYS.ACCESS_TOKEN
+            STORAGE_KEYS.ACCESS_TOKEN,
           )}`,
         },
       });
@@ -235,7 +235,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   // Verificar si es admin
   const isAdmin = useCallback(() => user?.role === Role.ADMIN, [user]);
   const isManager = useCallback(() => user?.role === Role.MANAGER, [user]);
-  const isRepresentante = useCallback(() => user?.role === Role.REPRESENTANTE, [user]);
+  const isRepresentante = useCallback(
+    () => user?.role === Role.REPRESENTANTE,
+    [user],
+  );
 
   const isAuthenticated = useCallback(() => !!user, [user]);
 

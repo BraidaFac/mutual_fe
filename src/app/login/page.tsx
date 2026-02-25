@@ -13,11 +13,9 @@ import {
   Container,
   IconButton,
   InputAdornment,
-  Link,
   TextField,
   Typography,
 } from "@mui/material";
-import NextLink from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react"; // 1. Importar Suspense
 
@@ -148,7 +146,7 @@ function LoginForm() {
                 Iniciar Sesión
               </Button>
 
-              <Box sx={{ textAlign: "center", mt: 2 }}>
+              {/* <Box sx={{ textAlign: "center", mt: 2 }}>
                 <Typography variant="body2" color="text.secondary">
                   ¿No tienes una cuenta?{" "}
                   <Link
@@ -160,7 +158,7 @@ function LoginForm() {
                     Registrarse
                   </Link>
                 </Typography>
-              </Box>
+              </Box> */}
             </Box>
           </CardContent>
         </Card>

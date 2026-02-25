@@ -96,12 +96,18 @@ export interface FiltroRepresentantes {
 }
 
 export const validateForm = (
-  formData: ClienteFormData
+  formData: ClienteFormData,
 ): Partial<ClienteFormDataErrors> => {
   const newErrors: Partial<ClienteFormDataErrors> = {};
 
   if (!formData.fullName) {
     newErrors.fullName = "El nombre es requerido";
+  }
+
+  if (!formData.dni) {
+    newErrors.dni = "El DNI es requerido";
+  } else if (!/^[0-9]{7,8}$/.test(formData.dni.toString())) {
+    newErrors.dni = "El DNI no es válido";
   }
 
   if (!formData.email.trim()) {
@@ -112,6 +118,10 @@ export const validateForm = (
 
   if (!formData.telefono.trim()) {
     newErrors.telefono = "El teléfono es requerido";
+
+    if (!/^\+[0-9]+$/.test(formData.telefono)) {
+      newErrors.telefono = "El teléfono no es válido";
+    }
   }
 
   if (!formData.provinciaId) {

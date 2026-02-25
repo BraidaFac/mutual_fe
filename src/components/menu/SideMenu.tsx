@@ -36,6 +36,7 @@ import {
 } from "@mui/material";
 import { usePathname, useRouter } from "next/navigation";
 import React, { useMemo, useState } from "react";
+import { LoadingSpinner } from "../shared";
 
 interface NavigationItem {
   id: string;
@@ -361,6 +362,24 @@ export function SideBar() {
 
   return (
     <>
+      {isLoading && (
+        <Box
+          sx={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100vw",
+            height: "100vh",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            zIndex: 1300,
+            backgroundColor: "white",
+          }}
+        >
+          <LoadingSpinner />
+        </Box>
+      )}
       {/* Mobile AppBar */}
       {isMobile && (
         <AppBar

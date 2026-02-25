@@ -67,9 +67,9 @@ export default function ClienteDialog({
           dni: cliente.dni ?? undefined,
           email: cliente.email,
           telefono: cliente.telefono,
-          provinciaId: cliente.provincia.id,
-          fuerzaId: cliente.fuerza.id,
-          representanteId: cliente.representante.id,
+          provinciaId: cliente.provincia?.id ?? undefined,
+          fuerzaId: cliente.fuerza?.id ?? undefined,
+          representanteId: cliente.representante?.id ?? undefined,
           esSocio: cliente.esSocio,
           observaciones: cliente.observaciones || "",
         });
@@ -118,7 +118,7 @@ export default function ClienteDialog({
 
   const handleFieldChange = (
     field: keyof ClienteFormData,
-    value: string | number | boolean
+    value: string | number | boolean,
   ) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
 
@@ -180,29 +180,29 @@ export default function ClienteDialog({
             />
           </Grid>
 
-            <Grid size={{ xs: 12, sm: 6 }}>
-              <FormField
-                type="text"
-                name="dni"
-                label="DNI"
-                value={formData.dni?.toString() || ""}
-                onChange={(value) => handleFieldChange("dni", value)}
-                error={errors.dni}
-                required
-                disabled={loading}
-              />
-            </Grid>
-            <Grid size={{ xs: 12, sm: 6 }}>
-              <FormField
-                type="text"
-                name="matricula"
-                label="Matrícula"
-                value={formData.matricula ?? ""}
-                onChange={(value) => handleFieldChange("matricula", value)}
-                error={errors.matricula}
-                disabled={loading}
-              />
-            </Grid>
+          <Grid size={{ xs: 12, sm: 6 }}>
+            <FormField
+              type="text"
+              name="dni"
+              label="DNI"
+              value={formData.dni?.toString() || ""}
+              onChange={(value) => handleFieldChange("dni", value)}
+              error={errors.dni}
+              required
+              disabled={loading}
+            />
+          </Grid>
+          <Grid size={{ xs: 12, sm: 6 }}>
+            <FormField
+              type="text"
+              name="matricula"
+              label="Matrícula"
+              value={formData.matricula ?? ""}
+              onChange={(value) => handleFieldChange("matricula", value)}
+              error={errors.matricula}
+              disabled={loading}
+            />
+          </Grid>
           <Grid size={{ xs: 12, sm: 6 }}>
             <FormField
               type="select"

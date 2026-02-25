@@ -111,6 +111,7 @@ export default function ClientesContent() {
   };
 
   const handleEditarCliente = (cliente: Cliente) => {
+    console.log("cliente", cliente);
     setClienteSeleccionado(cliente);
     setModoEdicion(true);
     setClienteDialogOpen(true);
@@ -281,6 +282,7 @@ export default function ClientesContent() {
         data={clientes}
         actions={actions}
         loading={loading}
+        serverSidePagination={true}
         emptyMessage="No se encontraron clientes"
         onRowClick={handleVerDetalle}
         paginationMeta={paginationMeta}
